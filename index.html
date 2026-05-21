@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta property="og:title" content="오늘 씻어야 할까? AI가 판단해드립니다" />
+  <meta property="og:description" content="15가지 질문으로 알아보는 나의 위생 상태" />
+  <title>오늘 씻어야 할까? 🚿</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      padding: 40px 36px;
+      max-width: 520px;
+      width: 100%;
+      color: #fff;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    /* Intro */
+    #intro { text-align: center; }
+    #intro .emoji { font-size: 72px; margin-bottom: 16px; }
+    #intro h1 { font-size: 26px; font-weight: 800; margin-bottom: 10px; line-height: 1.3; }
+    #intro p { font-size: 15px; color: rgba(255,255,255,0.6); margin-bottom: 32px; line-height: 1.6; }
+
+    .btn-start {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 16px 40px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s;
+      width: 100%;
+    }
+    .btn-start:hover { opacity: 0.88; transform: translateY(-2px); }
+
+    /* Quiz */
+    #quiz { display: none; }
+
+    .progress-bar {
+      background: rgba(255,255,255,0.1);
+      border-radius: 99px;
+      height: 6px;
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #a78bfa);
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    .q-count {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 10px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .q-text {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 28px;
+      line-height: 1.4;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .opt {
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 15px;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+    }
+    .opt:hover {
+      background: rgba(99,102,241,0.25);
+      border-color: #6366f1;
+      transform: translateX(4px);
+    }
+
+    /* Result */
+    #result { display: none; text-align: center; }
+
+    .result-emoji { font-size: 80px; margin-bottom: 16px; animation: bounce 0.6s ease; }
+    @keyframes bounce {
+      0% { transform: scale(0.5); opacity: 0; }
+      70% { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .result-grade {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 10px;
+    }
+
+    .result-title {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+
+    .result-msg {
+      font-size: 15px;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.7;
+      margin-bottom: 28px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .result-score {
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 28px;
+    }
+
+    .btn-row { display: flex; gap: 12px; }
+
+    .btn-share {
+      flex: 1;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-share:hover { opacity: 0.85; }
+
+    .btn-retry {
+      flex: 1;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-retry:hover { background: rgba(255,255,255,0.14); }
+
+    .grade-S  { color: #ef4444; }
+    .grade-A  { color: #f97316; }
+    .grade-B  { color: #eab308; }
+    .grade-C  { color: #22c55e; }
+    .grade-SS { color: #a78bfa; }
+  </style>
+</head>
+<body>
+<div class="card">
+
+  <!-- 인트로 -->
+  <div id="intro">
+    <div class="emoji">🚿</div>
+    <h1>오늘 씻어야 할까?</h1>
+    <p>15가지 질문에 답하면<br/>AI가 당신의 위생 상태를 과학적으로 판단해드립니다.<br/><br/>솔직하게 답해주세요. 판단하지 않을게요. 아마도.</p>
+    <button class="btn-start" onclick="startQuiz()">판단받으러 가기</button>
+  </div>
+
+  <!-- 퀴즈 -->
+  <div id="quiz">
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+    <div class="q-count" id="q-count"></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="options" id="options"></div>
+  </div>
+
+  <!-- 결과 -->
+  <div id="result">
+    <div class="result-emoji" id="r-emoji"></div>
+    <div class="result-grade" id="r-grade"></div>
+    <div class="result-title" id="r-title"></div>
+    <div class="result-msg" id="r-msg"></div>
+    <div class="result-score" id="r-score"></div>
+    <div class="btn-row">
+      <button class="btn-share" onclick="share()">결과 공유하기</button>
+      <button class="btn-retry" onclick="retry()">다시 하기</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    text: "마지막으로 씻은 게 언제야?",
+    options: [
+      { label: "오늘 씻었음", score: 0 },
+      { label: "어제 씻었음", score: 1 },
+      { label: "2일 전...", score: 3 },
+      { label: "3일 이상 됐음 (용감하다)", score: 6 },
+    ]
+  },
+  {
+    text: "오늘 운동했어?",
+    options: [
+      { label: "열심히 했음 (땀 범벅)", score: 4 },
+      { label: "조금 했음", score: 2 },
+      { label: "안 했음", score: 0 },
+    ]
+  },
+  {
+    text: "오늘 땀 얼마나 났어?",
+    options: [
+      { label: "흠뻑 젖었음", score: 4 },
+      { label: "조금 났음", score: 1 },
+      { label: "거의 안 남", score: 0 },
+    ]
+  },
+  {
+    text: "내일 중요한 약속 있어?",
+    options: [
+      { label: "면접/소개팅 있음 (중요함)", score: -3 },
+      { label: "그냥 만남 있음", score: -1 },
+      { label: "없음", score: 0 },
+    ]
+  },
+  {
+    text: "지금 몇 시야?",
+    options: [
+      { label: "오전 (아직 낮임)", score: 1 },
+      { label: "오후", score: 1 },
+      { label: "밤 10시 이후", score: -1 },
+      { label: "새벽... (왜 아직 안 잠)", score: -2 },
+    ]
+  },
+  {
+    text: "오늘 밖에 나갔어?",
+    options: [
+      { label: "오래 돌아다녔음", score: 2 },
+      { label: "잠깐 나갔음", score: 1 },
+      { label: "집에만 있었음", score: 0 },
+    ]
+  },
+  {
+    text: "옆에 사람 있어? (가족, 동거인 등)",
+    options: [
+      { label: "있음 (눈치 보임)", score: 2 },
+      { label: "없음 (자유롭다)", score: 0 },
+    ]
+  },
+  {
+    text: "오늘 치킨, 삼겹살 같은 기름진 거 먹었어?",
+    options: [
+      { label: "먹었음 (냄새 배었을 수도)", score: 2 },
+      { label: "안 먹었음", score: 0 },
+    ]
+  },
+  {
+    text: "머리 상태가 어때?",
+    options: [
+      { label: "떡져서 기름 줄줄", score: 3 },
+      { label: "좀 기름짐", score: 1 },
+      { label: "괜찮음", score: 0 },
+    ]
+  },
+  {
+    text: "솔직히 지금 냄새 나는 것 같아?",
+    options: [
+      { label: "남", score: 5 },
+      { label: "모르겠음 (이게 제일 위험)", score: 3 },
+      { label: "안 남", score: 0 },
+    ]
+  },
+  {
+    text: "내일 아침 일찍 일어나야 해?",
+    options: [
+      { label: "응 일찍 일어나야 함", score: 1 },
+      { label: "아니 자유롭게 잠", score: 0 },
+    ]
+  },
+  {
+    text: "마지막에 씻었을 때 머리도 같이 감았어?",
+    options: [
+      { label: "감았음", score: 0 },
+      { label: "몸만 씻었음", score: 2 },
+      { label: "머리만 감았음", score: 1 },
+    ]
+  },
+  {
+    text: "오늘 누군가를 직접 만났어?",
+    options: [
+      { label: "여러 명 만남", score: 1 },
+      { label: "한 명 만남", score: 1 },
+      { label: "아무도 안 만남 (집콕)", score: 0 },
+    ]
+  },
+  {
+    text: "오늘 에어컨 없이 더운 데 있었어?",
+    options: [
+      { label: "있었음 (더웠음)", score: 2 },
+      { label: "아니 쾌적했음", score: 0 },
+    ]
+  },
+  {
+    text: "마지막으로, 지금 씻기 귀찮아?",
+    options: [
+      { label: "존나 귀찮음", score: 0 },
+      { label: "뭐 할 수는 있음", score: -1 },
+      { label: "오히려 씻고 싶음", score: -2 },
+    ]
+  },
+];
+
+const GRADES = [
+  {
+    min: 15,
+    emoji: "🚨",
+    grade: "S등급 위기",
+    title: "지금 당장 씻으세요",
+    msg: "주변 사람들이 당신에게 말을 못 하고 있을 뿐입니다.\n지금 이 화면을 닫고 욕실로 가주세요.\n샴푸도 쓰세요. 두 번.",
+    cls: "grade-S"
+  },
+  {
+    min: 10,
+    emoji: "⚠️",
+    grade: "A등급 주의",
+    title: "오늘 안에는 씻어야 함",
+    msg: "아직 기회가 있습니다.\n자기 전까지만 씻으면 됩니다.\n미루다가 S등급 됩니다.",
+    cls: "grade-A"
+  },
+  {
+    min: 6,
+    emoji: "😐",
+    grade: "B등급 애매",
+    title: "당신만 모릅니다",
+    msg: "애매한 상태입니다.\n씻어도 되고 안 씻어도 되는데...\n옆에 사람 있으면 씻으세요.",
+    cls: "grade-B"
+  },
+  {
+    min: 2,
+    emoji: "✅",
+    grade: "C등급 양호",
+    title: "오늘은 패스 가능",
+    msg: "오늘은 봐드리겠습니다.\n내일은 꼭 씻으세요.\n이게 합리적인 결정입니다.",
+    cls: "grade-C"
+  },
+  {
+    min: -99,
+    emoji: "👑",
+    grade: "SS등급 청결왕",
+    title: "씻을 필요 없음",
+    msg: "당신은 이미 깨끗합니다.\n억지로 씻으면 오히려 피부에 안 좋아요.\n오늘은 그냥 자도 됩니다.",
+    cls: "grade-SS"
+  },
+];
+
+let current = 0;
+let totalScore = 0;
+
+function startQuiz() {
+  document.getElementById("intro").style.display = "none";
+  document.getElementById("quiz").style.display = "block";
+  current = 0;
+  totalScore = 0;
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[current];
+  const pct = (current / QUESTIONS.length) * 100;
+
+  document.getElementById("progress").style.width = pct + "%";
+  document.getElementById("q-count").textContent = `${current + 1} / ${QUESTIONS.length}`;
+  document.getElementById("q-text").textContent = q.text;
+
+  const opts = document.getElementById("options");
+  opts.innerHTML = "";
+  q.options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.className = "opt";
+    btn.textContent = opt.label;
+    btn.onclick = () => answer(opt.score);
+    opts.appendChild(btn);
+  });
+}
+
+function answer(score) {
+  totalScore += score;
+  current++;
+  if (current < QUESTIONS.length) {
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById("quiz").style.display = "none";
+  document.getElementById("result").style.display = "block";
+
+  const grade = GRADES.find(g => totalScore >= g.min);
+
+  document.getElementById("r-emoji").textContent = grade.emoji;
+  document.getElementById("r-grade").textContent = grade.grade;
+  document.getElementById("r-title").textContent = grade.title;
+  document.getElementById("r-title").className = "result-title " + grade.cls;
+  document.getElementById("r-msg").textContent = grade.msg;
+  document.getElementById("r-score").textContent = `위생 위험 점수: ${totalScore}점`;
+
+  document.getElementById("progress").style.width = "100%";
+}
+
+function share() {
+  const title = document.getElementById("r-title").textContent;
+  const emoji = document.getElementById("r-emoji").textContent;
+  const text = `${emoji} 오늘 내 위생 판정: "${title}"\n\n나도 한번 해봐 👉 오늘 씻어야 할까? AI 판정기`;
+  if (navigator.share) {
+    navigator.share({ title: "오늘 씻어야 할까?", text });
+  } else {
+    navigator.clipboard.writeText(text);
+    alert("클립보드에 복사됐어! 붙여넣기해서 공유해줘 ㅋㅋ");
+  }
+}
+
+function retry() {
+  document.getElementById("result").style.display = "none";
+  document.getElementById("intro").style.display = "block";
+  document.getElementById("progress").style.width = "0%";
+}
+</script>
+</body>
+</html>
