@@ -11,469 +11,586 @@
   <meta property="og:url" content="https://sauuri.github.io/shower-or-not/" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="오늘 씻어야 해? 🚿" />
-  <meta name="twitter:description" content="15가지 질문으로 오늘의 샤워 여부 판정해드립니다" />
-  <meta name="twitter:image" content="https://sauuri.github.io/shower-or-not/og.png" />
-  <title>오늘 씻어야 할까? 🚿</title>
+  <title>오늘 씻어야 해? 🚿</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
       min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+      background: #020c14;
+      font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      color: #e0f2fe;
+      overflow-x: hidden;
+      display: flex; align-items: center; justify-content: center;
     }
 
-    .card {
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 24px;
-      padding: 40px 36px;
-      max-width: 520px;
-      width: 100%;
-      color: #fff;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse at 70% 15%, #0ea5e922 0%, transparent 55%),
+        radial-gradient(ellipse at 20% 85%, #0284c718 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 50%, #075985 20 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
     }
 
-    /* Intro */
-    #intro { text-align: center; }
-    #intro .emoji { font-size: 72px; margin-bottom: 16px; }
-    #intro h1 { font-size: 26px; font-weight: 800; margin-bottom: 10px; line-height: 1.3; }
-    #intro p { font-size: 15px; color: rgba(255,255,255,0.6); margin-bottom: 32px; line-height: 1.6; }
-
-    .btn-start {
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      color: #fff;
-      border: none;
-      border-radius: 14px;
-      padding: 16px 40px;
-      font-size: 17px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.2s, opacity 0.2s;
-      width: 100%;
+    /* 물방울 파티클 */
+    .drops { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .drop {
+      position: absolute;
+      font-size: var(--s, 14px);
+      animation: floatUp var(--d, 6s) ease-in infinite;
+      animation-delay: var(--delay, 0s);
+      opacity: 0;
     }
-    .btn-start:hover { opacity: 0.88; transform: translateY(-2px); }
+    @keyframes floatUp {
+      0%   { transform: translateY(100vh) rotate(0deg);   opacity: 0; }
+      10%  { opacity: 0.3; }
+      90%  { opacity: 0.1; }
+      100% { transform: translateY(-120px) rotate(360deg); opacity: 0; }
+    }
 
-    /* Quiz */
-    #quiz { display: none; }
+    /* 컨페티 */
+    .confetti-piece {
+      position: fixed; top: -12px;
+      width: 8px; height: 8px;
+      border-radius: 2px;
+      pointer-events: none; z-index: 999;
+      animation: confettiFall var(--cd, 1.5s) ease-in var(--cdelay, 0s) forwards;
+    }
+    @keyframes confettiFall {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
 
+    .container { position: relative; z-index: 1; width: 100%; max-width: 460px; padding: 20px 16px 40px; }
+
+    /* ── INTRO ── */
+    .intro { text-align: center; padding: 48px 16px; }
+    .intro-icon-wrap { position: relative; display: inline-block; margin-bottom: 28px; }
+    .intro-icon { font-size: 90px; display: block; animation: drip 2s ease-in-out infinite; }
+    @keyframes drip {
+      0%, 100% { transform: scale(1) translateY(0); }
+      30%       { transform: scale(1.12) translateY(-6px); }
+      60%       { transform: scale(0.96) translateY(3px); }
+    }
+
+    .intro h1 {
+      font-size: 30px; font-weight: 900; margin-bottom: 10px; line-height: 1.2;
+      background: linear-gradient(135deg, #7dd3fc 20%, #38bdf8 60%, #0ea5e9);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .intro-desc { font-size: 15px; color: #5b8fa8; line-height: 1.9; margin-bottom: 36px; }
+    .intro-desc strong { color: #38bdf8; }
+
+    .intro-tags { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 32px; }
+    .intro-tag {
+      background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.25);
+      color: #38bdf8; font-size: 12px; font-weight: 700;
+      padding: 5px 14px; border-radius: 20px;
+    }
+
+    .start-btn {
+      background: linear-gradient(135deg, #0284c7, #0ea5e9, #38bdf8);
+      color: white; border: none;
+      padding: 16px 52px; border-radius: 50px;
+      font-size: 17px; font-weight: 800; cursor: pointer;
+      transition: all 0.3s; font-family: inherit;
+      box-shadow: 0 6px 28px rgba(14,165,233,0.45);
+      letter-spacing: 0.5px;
+    }
+    .start-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(14,165,233,0.6); }
+    .start-btn:active { transform: translateY(0); }
+
+    /* ── PROGRESS ── */
+    .progress-wrap { margin-bottom: 20px; }
+    .back-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: none; border: none; cursor: pointer;
+      color: #4a7a90; font-size: 13px; font-weight: 700;
+      font-family: inherit; padding: 0; margin-bottom: 14px;
+      transition: color 0.2s;
+    }
+    .back-btn:hover { color: #38bdf8; }
+    .back-btn:disabled { opacity: 0.25; cursor: default; }
+    .progress-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .progress-label { font-size: 12px; color: #4a7a90; font-weight: 700; letter-spacing: 0.5px; }
+    .progress-count { font-size: 13px; color: #0ea5e9; font-weight: 800; }
     .progress-bar {
-      background: rgba(255,255,255,0.1);
-      border-radius: 99px;
-      height: 6px;
-      margin-bottom: 28px;
-      overflow: hidden;
+      width: 100%; height: 7px;
+      background: rgba(14,165,233,0.12); border-radius: 4px; overflow: hidden;
     }
     .progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, #6366f1, #a78bfa);
-      border-radius: 99px;
-      transition: width 0.4s ease;
+      background: linear-gradient(90deg, #0284c7, #0ea5e9, #38bdf8);
+      border-radius: 4px; transition: width 0.45s cubic-bezier(0.34,1.56,0.64,1);
+      box-shadow: 0 0 8px rgba(14,165,233,0.5);
     }
 
-    .q-count {
-      font-size: 12px;
-      color: rgba(255,255,255,0.4);
-      margin-bottom: 10px;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
+    /* ── QUESTION CARD ── */
+    .card {
+      background: linear-gradient(145deg, #071828, #050f1c);
+      border: 1px solid rgba(14,165,233,0.2);
+      border-radius: 26px;
+      padding: 30px 24px;
+      box-shadow: 0 8px 40px rgba(14,165,233,0.08), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .question-card { animation: slideIn 0.38s cubic-bezier(0.34,1.56,0.64,1); }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(28px) scale(0.97); }
+      to   { opacity: 1; transform: translateX(0) scale(1); }
     }
 
-    .q-text {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 28px;
-      line-height: 1.4;
+    .q-emoji { font-size: 42px; display: block; margin-bottom: 16px; }
+    .q-num {
+      display: inline-block; font-size: 11px; font-weight: 800;
+      color: #0ea5e9; letter-spacing: 1.5px; text-transform: uppercase;
+      background: rgba(14,165,233,0.1); border: 1px solid rgba(14,165,233,0.2);
+      padding: 3px 10px; border-radius: 20px; margin-bottom: 12px;
+    }
+    .q-text { font-size: 19px; font-weight: 700; line-height: 1.55; margin-bottom: 24px; color: #e0f2fe; }
+
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .option-btn {
+      background: rgba(255,255,255,0.03);
+      border: 1.5px solid rgba(14,165,233,0.15);
+      border-radius: 16px; padding: 14px 16px;
+      text-align: left; cursor: pointer;
+      transition: all 0.22s;
+      display: flex; align-items: center; gap: 12px;
+      font-size: 15px; color: #6aa8c0; font-family: inherit;
+      position: relative; overflow: hidden;
+    }
+    .option-btn::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(14,165,233,0.08), transparent);
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .option-btn:hover { border-color: rgba(14,165,233,0.5); color: #e0f2fe; transform: translateX(5px); }
+    .option-btn:hover::before { opacity: 1; }
+    .option-btn.selected {
+      background: linear-gradient(135deg, rgba(2,132,199,0.25), rgba(14,165,233,0.15));
+      border-color: #0ea5e9; color: white;
+      box-shadow: 0 4px 20px rgba(14,165,233,0.25);
     }
 
-    .options {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    /* ── RESULT ── */
+    .result-outer { animation: resultReveal 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+    @keyframes resultReveal {
+      from { opacity: 0; transform: scale(0.9) translateY(20px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
     }
 
-    .opt {
-      background: rgba(255,255,255,0.07);
-      border: 1.5px solid rgba(255,255,255,0.12);
-      border-radius: 14px;
-      padding: 14px 18px;
-      font-size: 15px;
-      color: #fff;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-align: left;
-    }
-    .opt:hover {
-      background: rgba(99,102,241,0.25);
-      border-color: #6366f1;
-      transform: translateX(4px);
+    .result-card {
+      background: linear-gradient(145deg, #071828, #050f1c);
+      border-radius: 28px; overflow: hidden;
+      box-shadow: 0 16px 60px rgba(14,165,233,0.18), 0 4px 16px rgba(0,0,0,0.4);
     }
 
-    /* Result */
-    #result { display: none; text-align: center; }
-
-    .result-emoji { font-size: 80px; margin-bottom: 16px; animation: bounce 0.6s ease; }
-    @keyframes bounce {
-      0% { transform: scale(0.5); opacity: 0; }
-      70% { transform: scale(1.15); }
-      100% { transform: scale(1); opacity: 1; }
+    .result-hero {
+      padding: 36px 28px 28px; text-align: center; position: relative;
     }
-
-    .result-grade {
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.4);
-      margin-bottom: 10px;
+    .result-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: var(--hero-bg, radial-gradient(ellipse at 50% 0%, rgba(14,165,233,0.2) 0%, transparent 70%));
     }
-
+    .result-emoji {
+      font-size: 80px; display: block; margin-bottom: 16px;
+      position: relative; z-index: 1;
+      animation: popIn 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.15s both;
+    }
+    @keyframes popIn {
+      from { transform: scale(0) rotate(-15deg); }
+      to   { transform: scale(1) rotate(0deg); }
+    }
+    .result-badge {
+      display: inline-block; padding: 6px 18px; border-radius: 50px;
+      font-size: 12px; font-weight: 800; letter-spacing: 1px;
+      margin-bottom: 14px; position: relative; z-index: 1;
+      background: var(--badge-bg); color: var(--badge-color); border: 1px solid var(--badge-border);
+    }
     .result-title {
-      font-size: 26px;
-      font-weight: 800;
-      margin-bottom: 16px;
-      line-height: 1.3;
+      font-size: 24px; font-weight: 900; line-height: 1.35;
+      margin-bottom: 8px; position: relative; z-index: 1;
+      color: var(--title-color);
+    }
+    .result-sub { font-size: 14px; color: #4a7a90; line-height: 1.85; position: relative; z-index: 1; }
+
+    .score-section {
+      padding: 22px 28px;
+      border-top: 1px solid rgba(14,165,233,0.1);
+      border-bottom: 1px solid rgba(14,165,233,0.1);
+    }
+    .score-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .score-label { font-size: 11px; font-weight: 800; color: #4a7a90; letter-spacing: 1.5px; text-transform: uppercase; }
+    .score-pct { font-size: 28px; font-weight: 900; color: var(--title-color, #0ea5e9); }
+
+    .drops-row {
+      display: grid; grid-template-columns: repeat(10, 1fr);
+      gap: 4px; margin-bottom: 10px;
+    }
+    .drop-dot {
+      width: 100%; aspect-ratio: 1; font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; transition: all 0.3s;
+    }
+    .drop-dot.filled { animation: dropPop 0.3s cubic-bezier(0.34,1.56,0.64,1) var(--dd, 0s) both; }
+    @keyframes dropPop { from { transform: scale(0); } to { transform: scale(1); } }
+
+    .score-bar-track { width: 100%; height: 10px; background: rgba(14,165,233,0.1); border-radius: 5px; overflow: hidden; }
+    .score-bar-fill {
+      height: 100%; border-radius: 5px;
+      background: linear-gradient(90deg, #0284c7, #0ea5e9, #38bdf8);
+      box-shadow: 0 0 10px rgba(14,165,233,0.5);
+      transition: width 1.2s cubic-bezier(0.34,1.56,0.64,1);
     }
 
-    .result-msg {
-      font-size: 15px;
-      color: rgba(255,255,255,0.65);
-      line-height: 1.7;
-      margin-bottom: 28px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 14px;
-      padding: 18px;
+    .advice-section { padding: 22px 28px; }
+    .advice-box {
+      background: rgba(14,165,233,0.06); border: 1px solid rgba(14,165,233,0.15);
+      border-radius: 18px; padding: 18px 20px; margin-bottom: 20px;
     }
+    .advice-tag { font-size: 10px; font-weight: 800; color: #0ea5e9; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
+    .advice-text { font-size: 14px; color: #6aa8c0; line-height: 1.85; }
 
-    .result-score {
-      font-size: 13px;
-      color: rgba(255,255,255,0.35);
-      margin-bottom: 28px;
+    .ad-wrap { text-align: center; margin-bottom: 20px; }
+
+    .action-btns { display: flex; flex-direction: column; gap: 10px; }
+    .primary-btn {
+      background: linear-gradient(135deg, #0284c7, #0ea5e9);
+      color: white; border: none; padding: 15px; border-radius: 16px;
+      font-size: 16px; font-weight: 800; cursor: pointer;
+      transition: all 0.22s; font-family: inherit;
+      box-shadow: 0 6px 24px rgba(14,165,233,0.35); letter-spacing: 0.3px;
     }
-
-    .btn-row { display: flex; gap: 12px; }
-
-    .btn-share {
-      flex: 1;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      color: #fff;
-      border: none;
-      border-radius: 14px;
-      padding: 14px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.2s;
+    .primary-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(14,165,233,0.5); }
+    .secondary-btn {
+      background: rgba(14,165,233,0.08); color: #38bdf8;
+      border: 1.5px solid rgba(14,165,233,0.25); padding: 15px; border-radius: 16px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      transition: all 0.22s; font-family: inherit;
     }
-    .btn-share:hover { opacity: 0.85; }
+    .secondary-btn:hover { background: rgba(14,165,233,0.14); border-color: rgba(14,165,233,0.45); }
 
-    .btn-retry {
-      flex: 1;
-      background: rgba(255,255,255,0.08);
-      color: #fff;
-      border: 1.5px solid rgba(255,255,255,0.15);
-      border-radius: 14px;
-      padding: 14px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
+    .toast {
+      position: fixed; bottom: 32px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #071828; border: 1px solid rgba(14,165,233,0.4);
+      color: #38bdf8; padding: 12px 26px; border-radius: 50px;
+      font-size: 14px; font-weight: 700; z-index: 999;
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      pointer-events: none; white-space: nowrap;
+      box-shadow: 0 8px 32px rgba(14,165,233,0.2);
     }
-    .btn-retry:hover { background: rgba(255,255,255,0.14); }
+    .toast.show { transform: translateX(-50%) translateY(0); }
 
-    .grade-S  { color: #ef4444; }
-    .grade-A  { color: #f97316; }
-    .grade-B  { color: #eab308; }
-    .grade-C  { color: #22c55e; }
-    .grade-SS { color: #a78bfa; }
+    /* 등급별 */
+    .gSS { --title-color:#34d399; --badge-bg:rgba(52,211,153,0.12); --badge-color:#34d399; --badge-border:rgba(52,211,153,0.3); --hero-bg:radial-gradient(ellipse at 50% 0%,rgba(52,211,153,0.2) 0%,transparent 70%); }
+    .gC  { --title-color:#38bdf8; --badge-bg:rgba(56,189,248,0.12); --badge-color:#38bdf8; --badge-border:rgba(56,189,248,0.3); --hero-bg:radial-gradient(ellipse at 50% 0%,rgba(56,189,248,0.2) 0%,transparent 70%); }
+    .gB  { --title-color:#fbbf24; --badge-bg:rgba(251,191,36,0.12); --badge-color:#fbbf24; --badge-border:rgba(251,191,36,0.3); --hero-bg:radial-gradient(ellipse at 50% 0%,rgba(251,191,36,0.2) 0%,transparent 70%); }
+    .gA  { --title-color:#fb923c; --badge-bg:rgba(251,146,60,0.12); --badge-color:#fb923c; --badge-border:rgba(251,146,60,0.3); --hero-bg:radial-gradient(ellipse at 50% 0%,rgba(251,146,60,0.2) 0%,transparent 70%); }
+    .gS  { --title-color:#f43f5e; --badge-bg:rgba(244,63,94,0.15); --badge-color:#f43f5e; --badge-border:rgba(244,63,94,0.35); --hero-bg:radial-gradient(ellipse at 50% 0%,rgba(244,63,94,0.25) 0%,transparent 70%); }
   </style>
   <script type="text/javascript" src="//t1.kakaocdn.net/kas/static/ba.min.js" async></script>
 </head>
 <body>
-<div class="card">
 
-  <!-- 인트로 -->
-  <div id="intro">
-    <div class="emoji">🚿</div>
-    <h1>오늘 씻어야 할까?</h1>
-    <p>15가지 질문에 답하면<br/>AI가 당신의 위생 상태를 과학적으로 판단해드립니다.<br/><br/>솔직하게 답해주세요. 판단하지 않을게요. 아마도.</p>
-    <button class="btn-start" onclick="startQuiz()">판단받으러 가기</button>
-  </div>
+<div class="drops" id="drops"></div>
 
-  <!-- 퀴즈 -->
-  <div id="quiz">
-    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
-    <div class="q-count" id="q-count"></div>
-    <div class="q-text" id="q-text"></div>
-    <div class="options" id="options"></div>
-  </div>
+<div class="container">
 
-  <!-- 결과 -->
-  <div id="result">
-    <div class="result-emoji" id="r-emoji"></div>
-    <div class="result-grade" id="r-grade"></div>
-    <div class="result-title" id="r-title"></div>
-    <div class="result-msg" id="r-msg"></div>
-    <div class="result-score" id="r-score"></div>
-    <div style="text-align:center;margin:24px 0 8px">
-      <ins class="kakao_ad_area" style="display:none;"
-        data-ad-unit="DAN-PVu656ucRpjzw2zW"
-        data-ad-width="320"
-        data-ad-height="50"></ins>
-    </div>
-    <div class="btn-row">
-      <button class="btn-share" onclick="share()">결과 공유하기</button>
-      <button class="btn-retry" onclick="retry()">다시 하기</button>
+  <!-- INTRO -->
+  <div id="screen-intro">
+    <div class="intro">
+      <div class="intro-icon-wrap">
+        <span class="intro-icon">🚿</span>
+      </div>
+      <h1>오늘 씻어야 해?</h1>
+      <p class="intro-desc">
+        오늘 씻어야 할지 말지 모르겠어?<br>
+        <strong>15가지 질문</strong>으로 솔직하게 판정해줄게.<br>
+        솔직하게 답해야 정확해.
+      </p>
+      <div class="intro-tags">
+        <span class="intro-tag">🚿 15문제</span>
+        <span class="intro-tag">⏱ 1분</span>
+        <span class="intro-tag">💯 익명</span>
+      </div>
+      <button class="start-btn" onclick="startQuiz()">판정받으러 가기 →</button>
     </div>
   </div>
+
+  <!-- QUIZ -->
+  <div id="screen-quiz" style="display:none">
+    <button class="back-btn" id="back-btn" onclick="goBack()">← 이전</button>
+    <div class="progress-wrap">
+      <div class="progress-info">
+        <span class="progress-label">🚿 샤워 판정 중</span>
+        <span class="progress-count" id="prog-count">1 / 15</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="question-card" id="qcard"></div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="screen-result" style="display:none"></div>
 
 </div>
 
+<div class="toast" id="toast">🔗 링크 복사됐어!</div>
+
 <script>
-const QUESTIONS = [
-  {
-    text: "마지막으로 씻은 게 언제야?",
-    options: [
-      { label: "오늘 씻었음", score: 0 },
-      { label: "어제 씻었음", score: 1 },
-      { label: "2일 전...", score: 3 },
-      { label: "3일 이상 됐음 (용감하다)", score: 6 },
-    ]
-  },
-  {
-    text: "오늘 운동했어?",
-    options: [
-      { label: "열심히 했음 (땀 범벅)", score: 4 },
-      { label: "조금 했음", score: 2 },
-      { label: "안 했음", score: 0 },
-    ]
-  },
-  {
-    text: "오늘 땀 얼마나 났어?",
-    options: [
-      { label: "흠뻑 젖었음", score: 4 },
-      { label: "조금 났음", score: 1 },
-      { label: "거의 안 남", score: 0 },
-    ]
-  },
-  {
-    text: "내일 중요한 약속 있어?",
-    options: [
-      { label: "면접/소개팅 있음 (중요함)", score: -3 },
-      { label: "그냥 만남 있음", score: -1 },
-      { label: "없음", score: 0 },
-    ]
-  },
-  {
-    text: "지금 몇 시야?",
-    options: [
-      { label: "오전 (아직 낮임)", score: 1 },
-      { label: "오후", score: 1 },
-      { label: "밤 10시 이후", score: -1 },
-      { label: "새벽... (왜 아직 안 잠)", score: -2 },
-    ]
-  },
-  {
-    text: "오늘 밖에 나갔어?",
-    options: [
-      { label: "오래 돌아다녔음", score: 2 },
-      { label: "잠깐 나갔음", score: 1 },
-      { label: "집에만 있었음", score: 0 },
-    ]
-  },
-  {
-    text: "옆에 사람 있어? (가족, 동거인 등)",
-    options: [
-      { label: "있음 (눈치 보임)", score: 2 },
-      { label: "없음 (자유롭다)", score: 0 },
-    ]
-  },
-  {
-    text: "오늘 치킨, 삼겹살 같은 기름진 거 먹었어?",
-    options: [
-      { label: "먹었음 (냄새 배었을 수도)", score: 2 },
-      { label: "안 먹었음", score: 0 },
-    ]
-  },
-  {
-    text: "머리 상태가 어때?",
-    options: [
-      { label: "떡져서 기름 줄줄", score: 3 },
-      { label: "좀 기름짐", score: 1 },
-      { label: "괜찮음", score: 0 },
-    ]
-  },
-  {
-    text: "솔직히 지금 냄새 나는 것 같아?",
-    options: [
-      { label: "남", score: 5 },
-      { label: "모르겠음 (이게 제일 위험)", score: 3 },
-      { label: "안 남", score: 0 },
-    ]
-  },
-  {
-    text: "내일 아침 일찍 일어나야 해?",
-    options: [
-      { label: "응 일찍 일어나야 함", score: 1 },
-      { label: "아니 자유롭게 잠", score: 0 },
-    ]
-  },
-  {
-    text: "마지막에 씻었을 때 머리도 같이 감았어?",
-    options: [
-      { label: "감았음", score: 0 },
-      { label: "몸만 씻었음", score: 2 },
-      { label: "머리만 감았음", score: 1 },
-    ]
-  },
-  {
-    text: "오늘 누군가를 직접 만났어?",
-    options: [
-      { label: "여러 명 만남", score: 1 },
-      { label: "한 명 만남", score: 1 },
-      { label: "아무도 안 만남 (집콕)", score: 0 },
-    ]
-  },
-  {
-    text: "오늘 에어컨 없이 더운 데 있었어?",
-    options: [
-      { label: "있었음 (더웠음)", score: 2 },
-      { label: "아니 쾌적했음", score: 0 },
-    ]
-  },
-  {
-    text: "마지막으로, 지금 씻기 귀찮아?",
-    options: [
-      { label: "너무 귀찮음", score: 0 },
-      { label: "뭐 할 수는 있음", score: -1 },
-      { label: "오히려 씻고 싶음", score: -2 },
-    ]
-  },
-];
-
-const GRADES = [
-  {
-    min: 15,
-    emoji: "🚨",
-    grade: "S등급 위기",
-    title: "지금 당장 씻으세요",
-    msg: "주변 사람들이 당신에게 말을 못 하고 있을 뿐입니다.\n지금 이 화면을 닫고 욕실로 가주세요.\n샴푸도 쓰세요. 두 번.",
-    cls: "grade-S"
-  },
-  {
-    min: 10,
-    emoji: "⚠️",
-    grade: "A등급 주의",
-    title: "오늘 안에는 씻어야 함",
-    msg: "아직 기회가 있습니다.\n자기 전까지만 씻으면 됩니다.\n미루다가 S등급 됩니다.",
-    cls: "grade-A"
-  },
-  {
-    min: 6,
-    emoji: "😐",
-    grade: "B등급 애매",
-    title: "당신만 모릅니다",
-    msg: "애매한 상태입니다.\n씻어도 되고 안 씻어도 되는데...\n옆에 사람 있으면 씻으세요.",
-    cls: "grade-B"
-  },
-  {
-    min: 2,
-    emoji: "✅",
-    grade: "C등급 양호",
-    title: "오늘은 패스 가능",
-    msg: "오늘은 봐드리겠습니다.\n내일은 꼭 씻으세요.\n이게 합리적인 결정입니다.",
-    cls: "grade-C"
-  },
-  {
-    min: -99,
-    emoji: "👑",
-    grade: "SS등급 청결왕",
-    title: "씻을 필요 없음",
-    msg: "당신은 이미 깨끗합니다.\n억지로 씻으면 오히려 피부에 안 좋아요.\n오늘은 그냥 자도 됩니다.",
-    cls: "grade-SS"
-  },
-];
-
-let current = 0;
-let totalScore = 0;
-
-function startQuiz() {
-  document.getElementById("intro").style.display = "none";
-  document.getElementById("quiz").style.display = "block";
-  current = 0;
-  totalScore = 0;
-  renderQuestion();
-}
-
-function renderQuestion() {
-  const q = QUESTIONS[current];
-  const pct = (current / QUESTIONS.length) * 100;
-
-  document.getElementById("progress").style.width = pct + "%";
-  document.getElementById("q-count").textContent = `${current + 1} / ${QUESTIONS.length}`;
-  document.getElementById("q-text").textContent = q.text;
-
-  const opts = document.getElementById("options");
-  opts.innerHTML = "";
-  q.options.forEach(opt => {
-    const btn = document.createElement("button");
-    btn.className = "opt";
-    btn.textContent = opt.label;
-    btn.onclick = () => answer(opt.score);
-    opts.appendChild(btn);
-  });
-}
-
-function answer(score) {
-  totalScore += score;
-  current++;
-  if (current < QUESTIONS.length) {
-    renderQuestion();
-  } else {
-    showResult();
+  const dropsEl = document.getElementById('drops');
+  const dropEmojis = ['💧','🫧','💦','🚿'];
+  for (let i = 0; i < 16; i++) {
+    const d = document.createElement('div');
+    d.className = 'drop';
+    d.textContent = dropEmojis[Math.floor(Math.random() * dropEmojis.length)];
+    d.style.cssText = `left:${Math.random()*100}%;--s:${Math.random()*14+10}px;--d:${(Math.random()*8+5).toFixed(1)}s;--delay:${(Math.random()*8).toFixed(1)}s`;
+    dropsEl.appendChild(d);
   }
-}
 
-function showResult() {
-  document.getElementById("quiz").style.display = "none";
-  document.getElementById("result").style.display = "block";
-
-  const grade = GRADES.find(g => totalScore >= g.min);
-
-  document.getElementById("r-emoji").textContent = grade.emoji;
-  document.getElementById("r-grade").textContent = grade.grade;
-  document.getElementById("r-title").textContent = grade.title;
-  document.getElementById("r-title").className = "result-title " + grade.cls;
-  document.getElementById("r-msg").textContent = grade.msg;
-  document.getElementById("r-score").textContent = `위생 위험 점수: ${totalScore}점`;
-
-  document.getElementById("progress").style.width = "100%";
-}
-
-function share() {
-  const title = document.getElementById("r-title").textContent;
-  const emoji = document.getElementById("r-emoji").textContent;
-  const text = `${emoji} 오늘 내 위생 판정: "${title}"\n\n나도 한번 해봐 👉 오늘 씻어야 할까? AI 판정기`;
-  if (navigator.share) {
-    navigator.share({ title: "오늘 씻어야 할까?", text });
-  } else {
-    navigator.clipboard.writeText(text);
-    alert("클립보드에 복사됐어! 붙여넣기해서 공유해줘 ㅋㅋ");
+  function launchConfetti() {
+    const colors = ['#38bdf8','#7dd3fc','#0ea5e9','#34d399','#a5f3fc','#bae6fd'];
+    for (let i = 0; i < 60; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.cssText = `left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};--cd:${(Math.random()*1.5+1).toFixed(2)}s;--cdelay:${(Math.random()*0.8).toFixed(2)}s;width:${Math.random()*8+4}px;height:${Math.random()*8+4}px;border-radius:${Math.random()>0.5?'50%':'2px'};`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 3000);
+    }
   }
-}
 
-function retry() {
-  document.getElementById("result").style.display = "none";
-  document.getElementById("intro").style.display = "block";
-  document.getElementById("progress").style.width = "0%";
-}
+  const QUESTIONS = [
+    { emoji:'🗓️', text:'마지막으로 씻은 게 언제야?', options:[
+      { text:'오늘 씻었음', score:0 },
+      { text:'어제 씻었음', score:1 },
+      { text:'2일 전...', score:3 },
+      { text:'3일 이상 됐음', score:6 },
+    ]},
+    { emoji:'🏃', text:'오늘 운동했어?', options:[
+      { text:'열심히 함 (땀 범벅)', score:4 },
+      { text:'조금 함', score:2 },
+      { text:'안 함', score:0 },
+    ]},
+    { emoji:'💦', text:'오늘 땀 얼마나 났어?', options:[
+      { text:'흠뻑 젖었음', score:4 },
+      { text:'조금 났음', score:1 },
+      { text:'거의 안 남', score:0 },
+    ]},
+    { emoji:'📅', text:'내일 중요한 약속 있어?', options:[
+      { text:'면접/소개팅 있음', score:-3 },
+      { text:'그냥 만남 있음', score:-1 },
+      { text:'없음', score:0 },
+    ]},
+    { emoji:'🕐', text:'지금 몇 시야?', options:[
+      { text:'오전', score:1 },
+      { text:'오후', score:1 },
+      { text:'밤 10시 이후', score:-1 },
+      { text:'새벽...', score:-2 },
+    ]},
+    { emoji:'🚪', text:'오늘 밖에 나갔어?', options:[
+      { text:'오래 돌아다녔음', score:2 },
+      { text:'잠깐 나갔음', score:1 },
+      { text:'집에만 있었음', score:0 },
+    ]},
+    { emoji:'👥', text:'옆에 사람 있어?', options:[
+      { text:'있음 (눈치 보임)', score:2 },
+      { text:'없음 (자유롭다)', score:0 },
+    ]},
+    { emoji:'🍗', text:'오늘 기름진 거 먹었어?', options:[
+      { text:'먹었음 (냄새 배었을 수도)', score:2 },
+      { text:'안 먹었음', score:0 },
+    ]},
+    { emoji:'💇', text:'머리 상태가 어때?', options:[
+      { text:'떡져서 기름 줄줄', score:3 },
+      { text:'좀 기름짐', score:1 },
+      { text:'괜찮음', score:0 },
+    ]},
+    { emoji:'👃', text:'솔직히 지금 냄새 나는 것 같아?', options:[
+      { text:'남', score:5 },
+      { text:'모르겠음 (이게 제일 위험)', score:3 },
+      { text:'안 남', score:0 },
+    ]},
+    { emoji:'⏰', text:'내일 아침 일찍 일어나야 해?', options:[
+      { text:'응 일찍 일어나야 함', score:1 },
+      { text:'아니 자유롭게 잠', score:0 },
+    ]},
+    { emoji:'🧴', text:'마지막에 씻을 때 머리도 감았어?', options:[
+      { text:'감았음', score:0 },
+      { text:'몸만 씻었음', score:2 },
+      { text:'머리만 감았음', score:1 },
+    ]},
+    { emoji:'🤝', text:'오늘 누군가를 직접 만났어?', options:[
+      { text:'여러 명 만남', score:1 },
+      { text:'한 명 만남', score:1 },
+      { text:'아무도 안 만남', score:0 },
+    ]},
+    { emoji:'☀️', text:'오늘 더운 데 있었어?', options:[
+      { text:'있었음 (더웠음)', score:2 },
+      { text:'아니 쾌적했음', score:0 },
+    ]},
+    { emoji:'😴', text:'지금 씻기 귀찮아?', options:[
+      { text:'너무 귀찮음', score:0 },
+      { text:'뭐 할 수는 있음', score:-1 },
+      { text:'오히려 씻고 싶음', score:-2 },
+    ]},
+  ];
+
+  const GRADES = [
+    { key:'gS',  min:15, emoji:'🚨', badge:'S등급 위기',    title:'지금 당장 씻으세요',
+      sub:'주변 사람들이 말을 못 하고 있을 뿐이에요.',
+      advice:'지금 이 화면 닫고 욕실로 가세요. 샴푸도 두 번 쓰세요.', drops:2 },
+    { key:'gA',  min:10, emoji:'⚠️', badge:'A등급 주의',    title:'오늘 안에는 씻어야 함',
+      sub:'아직 기회가 있어요. 자기 전까지만 씻으면 돼요.',
+      advice:'미루다가 S등급 됩니다. 지금 바로 가세요.', drops:4 },
+    { key:'gB',  min:6,  emoji:'😐', badge:'B등급 애매',    title:'당신만 모릅니다',
+      sub:'씻어도 되고 안 씻어도 되는 애매한 상태예요.',
+      advice:'옆에 사람 있으면 씻으세요. 없으면... 뭐.', drops:6 },
+    { key:'gC',  min:2,  emoji:'✅', badge:'C등급 양호',    title:'오늘은 패스 가능',
+      sub:'오늘은 봐드리겠습니다. 내일은 꼭 씻으세요.',
+      advice:'이게 합리적인 결정입니다. 내일 꼭 씻어요.', drops:8 },
+    { key:'gSS', min:-99,emoji:'👑', badge:'SS등급 청결왕', title:'씻을 필요 없음',
+      sub:'이미 깨끗해요. 억지로 씻으면 피부에 안 좋아요.',
+      advice:'오늘은 그냥 자도 됩니다. 당신은 청결왕이에요.', drops:10 },
+  ];
+
+  let cur = 0, answers = [];
+
+  function startQuiz() {
+    cur = 0; answers = [];
+    document.getElementById('screen-intro').style.display = 'none';
+    document.getElementById('screen-quiz').style.display = 'block';
+    renderQ(0);
+  }
+
+  function renderQ(idx) {
+    const q = QUESTIONS[idx];
+    document.getElementById('prog-fill').style.width = (idx / QUESTIONS.length * 100) + '%';
+    document.getElementById('prog-count').textContent = `${idx+1} / ${QUESTIONS.length}`;
+    const backBtn = document.getElementById('back-btn');
+    backBtn.disabled = idx === 0;
+    const card = document.getElementById('qcard');
+    card.style.animation = 'none'; card.offsetHeight; card.style.animation = '';
+    card.innerHTML = `
+      <span class="q-emoji">${q.emoji}</span>
+      <div class="q-num">질문 ${idx+1}</div>
+      <div class="q-text">${q.text}</div>
+      <div class="options">
+        ${q.options.map((o,i) => `
+          <button class="option-btn" onclick="pick(${i},${o.score})">
+            <span>${o.text}</span>
+          </button>`).join('')}
+      </div>`;
+  }
+
+  function pick(idx, score) {
+    document.querySelectorAll('.option-btn').forEach(b => b.style.pointerEvents = 'none');
+    document.querySelectorAll('.option-btn')[idx].classList.add('selected');
+    answers[cur] = score;
+    setTimeout(() => {
+      cur++;
+      if (cur < QUESTIONS.length) renderQ(cur);
+      else showResult();
+    }, 380);
+  }
+
+  function goBack() {
+    if (cur === 0) return;
+    answers.pop(); cur--;
+    renderQ(cur);
+  }
+
+  function showResult() {
+    document.getElementById('screen-quiz').style.display = 'none';
+    const el = document.getElementById('screen-result');
+    el.style.display = 'block';
+
+    const total = answers.reduce((a,b) => a+b, 0);
+    const g = GRADES.find(gr => total >= gr.min);
+    const danger = Math.min(Math.round((total / 20) * 100), 100);
+
+    const dotsHtml = Array.from({length:10}, (_,i) =>
+      `<div class="drop-dot ${i < g.drops ? 'filled' : ''}" style="--dd:${i*0.06}s">
+        ${i < g.drops ? '💧' : '🩶'}
+      </div>`
+    ).join('');
+
+    el.innerHTML = `
+      <div class="result-outer ${g.key}">
+        <div class="result-card">
+          <div class="result-hero">
+            <span class="result-emoji">${g.emoji}</span>
+            <div class="result-badge">${g.badge}</div>
+            <div class="result-title">${g.title}</div>
+            <div class="result-sub">${g.sub}</div>
+          </div>
+          <div class="score-section">
+            <div class="score-header">
+              <span class="score-label">🚿 위험도</span>
+              <span class="score-pct" id="score-num">0%</span>
+            </div>
+            <div class="drops-row">${dotsHtml}</div>
+            <div class="score-bar-track">
+              <div class="score-bar-fill" id="sbar" style="width:0%"></div>
+            </div>
+          </div>
+          <div class="advice-section">
+            <div class="advice-box">
+              <div class="advice-tag">💬 한마디</div>
+              <div class="advice-text">${g.advice}</div>
+            </div>
+            <div class="ad-wrap">
+              <ins class="kakao_ad_area" style="display:none;"
+                data-ad-unit="DAN-PVu656ucRpjzw2zW"
+                data-ad-width="320" data-ad-height="50"></ins>
+            </div>
+            <div class="action-btns">
+              <button class="primary-btn" onclick="retry()">🔄 다시 판정받기</button>
+              <button class="secondary-btn" onclick="shareResult()">🔗 결과 공유하기</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    setTimeout(() => {
+      document.getElementById('sbar').style.width = danger + '%';
+      animateCount('score-num', danger);
+    }, 350);
+
+    if (g.key === 'gSS' || g.key === 'gC') launchConfetti();
+  }
+
+  function animateCount(id, target) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let n = 0;
+    const step = Math.ceil(target / 30);
+    const t = setInterval(() => {
+      n = Math.min(n + step, target);
+      el.textContent = n + '%';
+      if (n >= target) clearInterval(t);
+    }, 35);
+  }
+
+  function retry() {
+    cur = 0; answers = [];
+    document.getElementById('screen-result').style.display = 'none';
+    document.getElementById('screen-intro').style.display = 'block';
+  }
+
+  function shareResult() {
+    navigator.clipboard.writeText(location.href).then(() => {
+      const t = document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2500);
+    });
+  }
 </script>
 </body>
 </html>
