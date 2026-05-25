@@ -66,7 +66,20 @@
     .container { position: relative; z-index: 1; width: 100%; max-width: 460px; padding: 20px 16px 40px; }
 
     /* ── INTRO ── */
-    .intro { text-align: center; padding: 48px 16px; }
+    .intro-card {
+      background: linear-gradient(145deg, #071828, #050f1c);
+      border: 1px solid rgba(14,165,233,0.2);
+      border-radius: 28px; overflow: hidden;
+      box-shadow: 0 16px 60px rgba(14,165,233,0.18), 0 4px 16px rgba(0,0,0,0.4);
+    }
+    .intro-card-top {
+      padding: 40px 28px 32px; text-align: center; position: relative;
+    }
+    .intro-card-top::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(14,165,233,0.2) 0%, transparent 70%);
+    }
+    .intro { text-align: center; position: relative; z-index: 1; }
     .intro-icon-wrap { position: relative; display: inline-block; margin-bottom: 28px; }
     .intro-icon { font-size: 90px; display: block; animation: drip 2s ease-in-out infinite; }
     @keyframes drip {
@@ -216,34 +229,6 @@
     }
     .result-sub { font-size: 14px; color: #4a7a90; line-height: 1.85; position: relative; z-index: 1; }
 
-    .score-section {
-      padding: 22px 28px;
-      border-top: 1px solid rgba(14,165,233,0.1);
-      border-bottom: 1px solid rgba(14,165,233,0.1);
-    }
-    .score-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-    .score-label { font-size: 11px; font-weight: 800; color: #4a7a90; letter-spacing: 1.5px; text-transform: uppercase; }
-    .score-pct { font-size: 28px; font-weight: 900; color: var(--title-color, #0ea5e9); }
-
-    .drops-row {
-      display: grid; grid-template-columns: repeat(10, 1fr);
-      gap: 4px; margin-bottom: 10px;
-    }
-    .drop-dot {
-      width: 100%; aspect-ratio: 1; font-size: 16px;
-      display: flex; align-items: center; justify-content: center;
-      border-radius: 50%; transition: all 0.3s;
-    }
-    .drop-dot.filled { animation: dropPop 0.3s cubic-bezier(0.34,1.56,0.64,1) var(--dd, 0s) both; }
-    @keyframes dropPop { from { transform: scale(0); } to { transform: scale(1); } }
-
-    .score-bar-track { width: 100%; height: 10px; background: rgba(14,165,233,0.1); border-radius: 5px; overflow: hidden; }
-    .score-bar-fill {
-      height: 100%; border-radius: 5px;
-      background: linear-gradient(90deg, #0284c7, #0ea5e9, #38bdf8);
-      box-shadow: 0 0 10px rgba(14,165,233,0.5);
-      transition: width 1.2s cubic-bezier(0.34,1.56,0.64,1);
-    }
 
     .advice-section { padding: 22px 28px; }
     .advice-box {
@@ -301,22 +286,26 @@
 
   <!-- INTRO -->
   <div id="screen-intro">
-    <div class="intro">
-      <div class="intro-icon-wrap">
-        <span class="intro-icon">🚿</span>
+    <div class="intro-card">
+      <div class="intro-card-top">
+        <div class="intro">
+          <div class="intro-icon-wrap">
+            <span class="intro-icon">🚿</span>
+          </div>
+          <h1>오늘 씻어야 해?</h1>
+          <p class="intro-desc">
+            오늘 씻어야 할지 말지 모르겠어?<br>
+            <strong>15가지 질문</strong>으로 솔직하게 판정해줄게.<br>
+            솔직하게 답해야 정확해.
+          </p>
+          <div class="intro-tags">
+            <span class="intro-tag">🚿 15문제</span>
+            <span class="intro-tag">⏱ 1분</span>
+            <span class="intro-tag">💯 익명</span>
+          </div>
+          <button class="start-btn" onclick="startQuiz()">판정받으러 가기 →</button>
+        </div>
       </div>
-      <h1>오늘 씻어야 해?</h1>
-      <p class="intro-desc">
-        오늘 씻어야 할지 말지 모르겠어?<br>
-        <strong>15가지 질문</strong>으로 솔직하게 판정해줄게.<br>
-        솔직하게 답해야 정확해.
-      </p>
-      <div class="intro-tags">
-        <span class="intro-tag">🚿 15문제</span>
-        <span class="intro-tag">⏱ 1분</span>
-        <span class="intro-tag">💯 익명</span>
-      </div>
-      <button class="start-btn" onclick="startQuiz()">판정받으러 가기 →</button>
     </div>
   </div>
 
@@ -513,13 +502,6 @@
 
     const total = answers.reduce((a,b) => a+b, 0);
     const g = GRADES.find(gr => total >= gr.min);
-    const danger = Math.min(Math.round((total / 20) * 100), 100);
-
-    const dotsHtml = Array.from({length:10}, (_,i) =>
-      `<div class="drop-dot ${i < g.drops ? 'filled' : ''}" style="--dd:${i*0.06}s">
-        ${i < g.drops ? '💧' : '🩶'}
-      </div>`
-    ).join('');
 
     el.innerHTML = `
       <div class="result-outer ${g.key}">
@@ -529,16 +511,6 @@
             <div class="result-badge">${g.badge}</div>
             <div class="result-title">${g.title}</div>
             <div class="result-sub">${g.sub}</div>
-          </div>
-          <div class="score-section">
-            <div class="score-header">
-              <span class="score-label">🚿 위험도</span>
-              <span class="score-pct" id="score-num">0%</span>
-            </div>
-            <div class="drops-row">${dotsHtml}</div>
-            <div class="score-bar-track">
-              <div class="score-bar-fill" id="sbar" style="width:0%"></div>
-            </div>
           </div>
           <div class="advice-section">
             <div class="advice-box">
@@ -558,24 +530,7 @@
         </div>
       </div>`;
 
-    setTimeout(() => {
-      document.getElementById('sbar').style.width = danger + '%';
-      animateCount('score-num', danger);
-    }, 350);
-
     if (g.key === 'gSS' || g.key === 'gC') launchConfetti();
-  }
-
-  function animateCount(id, target) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    let n = 0;
-    const step = Math.ceil(target / 30);
-    const t = setInterval(() => {
-      n = Math.min(n + step, target);
-      el.textContent = n + '%';
-      if (n >= target) clearInterval(t);
-    }, 35);
   }
 
   function retry() {
